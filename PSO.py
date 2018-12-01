@@ -48,6 +48,31 @@ def func4(x):
     y = x1 + x2
     return y
 
+def func5(x): #stlbanski tang
+    sum = 0
+    for i in x:
+        sum += i**4 - 16*(i**2) + 5*i
+    sum /= 2
+    return sum
+
+def func6(x): # auckley
+    t1 = 0
+    t2 = 0
+    s1 = 0
+    s2 = 0
+    a = 20
+    b = 0.2
+    c = 2*math.pi
+    d = len(x)
+    for i in x:
+        s1 += i **2
+        s2 += math.cos(c*i)
+
+    t1 = -a * math.exp(-b*math.sqrt(s1/d))
+    t2 = - math.exp(s2/d)
+    z = t1 + t2 + a +math.exp(1)
+    return z
+
 
 
 
@@ -111,23 +136,27 @@ class PSO():
         self.num_particles = num_particles
         self.maxiter = maxiter
         self.cnt = itertools.count()
+        self.points = []
         # establish the swarm
         self.swarm = []
         for i in range(0, num_particles):
             x0 = [random.randint(bounds[0][0],bounds[0][1]), random.randint(bounds[1][0], bounds[1][1])] # can put loop for higher dimensions
             #x0 = [random.randint(-15,-5), random.randint(-3,3)]
             self.swarm.append(Particle(x0))
+            self.points.append([x0[0], x0[1], self.costFunc(x0)])
 
+        self.point_actor = actor.point(np.array(self.points), (1, 0, 0))
         self.vertices = self.get_vertices(self.costFunc, self.bounds)
 
         self.renderer = window.renderer(background=(1, 1, 1))
         self.surface_actor = self.surface(self.vertices, smooth="butterfly")
         self.renderer.add(self.surface_actor)
+        self.renderer.add(self.point_actor)
 
         self.showm = window.ShowManager(self.renderer, size=(900, 768), reset_camera=False, order_transparent=True)
         self.showm.initialize()
         #window.show(self.renderer, size=(600, 600), reset_camera=False)
-        self.showm.add_window_callback(self.test)
+        self.showm.add_timer_callback(100, 2000, self.call_back)
         self.showm.render()
         self.showm.start()
         #window.record(self.showm.ren, size=(900, 768), out_path="viz_timer.png")
@@ -164,30 +193,34 @@ class PSO():
                 vertices.append([x,y,z])
         return vertices
 
-    def call_back(self):
+    def call_back(self, obj, event):
+        c = next(self.cnt)
         # begin optimization loop
-        i = 0
-        while i < self.maxiter:
-
+        self.points = []
+        if c < self.maxiter:
+            self.renderer.rm(self.point_actor)
             # cycle through particles in swarm and evaluate fitness
             for j in range(0, self.num_particles):
                 self.swarm[j].evaluate(self.costFunc)
 
                 # determine if current particle is the best (globally)
-                if self.swarm[j].err_i < err_best_g or err_best_g == -1:
-                    pos_best_g = list(self.swarm[j].position_i)
-                    err_best_g = float(self.swarm[j].err_i)
+                if self.swarm[j].err_i < self.err_best_g or self.err_best_g == -1:
+                    self.pos_best_g = list(self.swarm[j].position_i)
+                    self.err_best_g = float(self.swarm[j].err_i)
 
             # cycle through swarm and update velocities and position
             for j in range(0, self.num_particles):
-                self.swarm[j].update_velocity(pos_best_g)
-                self.swarm[j].update_position(bounds)
-            i += 1
+                self.swarm[j].update_velocity(self.pos_best_g)
+                self.swarm[j].update_position(self.bounds)
 
-        # print final results
-        print('FINAL:')
-        print(pos_best_g)
-        print(err_best_g)
+            for j in range(0, self.num_particles):
+                self.points.append([self.swarm[j].position_i[0], self.swarm[j].position_i[1], self.swarm[j].err_i])
+
+            self.point_actor = actor.point(self.points, (1, 0, 0))
+            self.renderer.add(self.point_actor)
+        else:
+            self.showm.exit()
+
 
     def surface(self, vertices, faces=None, smooth=None):
         temp1 = np.amax(vertices, axis=0)
@@ -272,6 +305,6 @@ if __name__ == "__PSO__":
     main()
 
 dim = [0, 0]  # dimensions
-bounds = [(-12, 12), (-12, 12)]  # input bounds [(x1_min,x1_max),(x2_min,x2_max)...]
-PSO(func1, dim, bounds, num_particles=100, maxiter=200)
+bounds = [(-32, 32), (-32, 32)]  # input bounds [(x1_min,x1_max),(x2_min,x2_max)...]
+PSO(func6, dim, bounds, num_particles=100, maxiter=200)
 
