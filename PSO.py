@@ -214,7 +214,7 @@ class PSO():
                 self.swarm[j].update_position(self.bounds)
 
             for j in range(0, self.num_particles):
-                self.points.append([self.swarm[j].position_i[0], self.swarm[j].position_i[1], self.swarm[j].err_i])
+                self.points.append([self.swarm[j].position_i[0], self.swarm[j].position_i[1], self.costFunc(self.swarm[j].position_i)])
 
             self.point_actor = actor.point(self.points, (1, 0, 0))
             self.renderer.add(self.point_actor)
