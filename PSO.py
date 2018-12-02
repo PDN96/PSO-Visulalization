@@ -48,14 +48,14 @@ def func4(x):
     y = x1 + x2
     return y
 
-def func5(x): #stlbanski tang
+def s_tang(x): #stlbanski tang
     sum = 0
     for i in x:
         sum += i**4 - 16*(i**2) + 5*i
     sum /= 2
     return sum
 
-def func6(x): # auckley
+def auckley(x): # bounds: (-32,32) , (-32,32)
     t1 = 0
     t2 = 0
     s1 = 0
@@ -73,7 +73,56 @@ def func6(x): # auckley
     z = t1 + t2 + a +math.exp(1)
     return z
 
+def cross_tray(x): # bounds: (-10,10), (-10,10)
+    x1 = x[0]
+    x2 = x[1]
+    f1 = math.sin(x1)*math.sin(x2)
+    f2 = math.exp(abs(100 - math.sqrt(x1**2 + x2**2)/math.pi))
+    z = -0.0001 * (abs(f1*f2)+1)**0.1
+    return z
 
+def drop_wave(x):
+    x1 = x[0]
+    x2 = x[1]
+    f1 = 1 + math.cos(12* math.sqrt(x1**2 + x2**2))
+    f2 = 0.5 * (x1**2 + x2**2) + 2
+    z = -f1/f2
+    return z
+
+def griewank(x):
+    sum = 0
+    prod = 1
+    for i in range(len(x)):
+        sum += (x[i]**2)/4000
+        prod *= math.cos(x[i]/math.sqrt(i+1))
+    z = sum - prod + 1
+    return z
+
+def rastrigin(x):
+    sum = 0
+    for i in x:
+        sum += i**2 - 10 * math.cos(2*math.pi*i)
+    z = 10*len(x) + sum
+    return z
+
+def three_hump(x):
+    x1 = x[0]
+    x2 = x[1]
+    t1 = 2*(x1**2)
+    t2 = -1.05 * (x1**4)
+    t3 = (x1**6) / 6
+    t4 = x1 * x2
+    t5 = x2**2
+    z= t1+t2+t3+t4+t5
+    return z
+
+def easom(x):
+    x1 = x[0]
+    x2 = x[1]
+    f1 = - math.cos(x1) * math.cos(x2)
+    f2 = math.exp(-(x1-math.pi)**2 - (x2-math.pi)**2);
+    z = f1*f2;
+    return z
 
 
 class Particle:
@@ -137,6 +186,7 @@ class PSO():
         self.maxiter = maxiter
         self.cnt = itertools.count()
         self.points = []
+        self.colors = np.random.rand(num_particles, 3)
         # establish the swarm
         self.swarm = []
         for i in range(0, num_particles):
@@ -145,7 +195,7 @@ class PSO():
             self.swarm.append(Particle(x0))
             self.points.append([x0[0], x0[1], self.costFunc(x0)])
 
-        self.point_actor = actor.point(np.array(self.points), (1, 0, 0))
+        self.point_actor = actor.point(np.array(self.points), self.colors)
         self.vertices = self.get_vertices(self.costFunc, self.bounds)
 
         self.renderer = window.renderer(background=(1, 1, 1))
@@ -216,7 +266,7 @@ class PSO():
             for j in range(0, self.num_particles):
                 self.points.append([self.swarm[j].position_i[0], self.swarm[j].position_i[1], self.costFunc(self.swarm[j].position_i)])
 
-            self.point_actor = actor.point(self.points, (1, 0, 0))
+            self.point_actor = actor.point(self.points, self.colors)
             self.renderer.add(self.point_actor)
         else:
             self.showm.exit()
@@ -305,6 +355,29 @@ if __name__ == "__PSO__":
     main()
 
 dim = [0, 0]  # dimensions
-bounds = [(-32, 32), (-32, 32)]  # input bounds [(x1_min,x1_max),(x2_min,x2_max)...]
-PSO(func6, dim, bounds, num_particles=100, maxiter=200)
+
+#bounds_cross_tray = [(-10,10), (-10,10)]  # input bounds [(x1_min,x1_max),(x2_min,x2_max)...]
+#PSO(cross_tray, dim, bounds_cross_tray, num_particles=100, maxiter=200)
+
+bounds_auckley = [(-32,32), (-32,32)]
+PSO(auckley, dim, bounds_auckley, num_particles=100, maxiter=200)
+
+#bounds_drop = [(-6,6), (-6,6)]
+#PSO(drop_wave, dim, bounds_drop, num_particles=100, maxiter=200)
+
+#bounds_griewank = [(-60,60), (-60,60)]
+#PSO(griewank, dim, bounds_griewank, num_particles=1000, maxiter=200)
+
+#bounds_rastrigin = [(-6,6), (-6,6)]
+#PSO(rastrigin, dim, bounds_rastrigin, num_particles=100, maxiter=200)
+
+#bounds_hump = [(-5,5), (-5,5)]
+#PSO(three_hump, dim, bounds_hump, num_particles=100, maxiter=200)
+
+#bounds_easom = [(-50,50), (-50,50)]
+#PSO(easom, dim, bounds_easom, num_particles=100, maxiter=200)
+
+#bounds_tang = [(-4,4), (-4,4)]
+#PSO(s_tang, dim, bounds_tang, num_particles=100, maxiter=200)
+
 
