@@ -268,6 +268,7 @@ class PSO():
 
             self.point_actor = actor.point(self.points, self.colors)
             self.renderer.add(self.point_actor)
+            self.showm.render()
         else:
             self.showm.exit()
 
@@ -359,14 +360,14 @@ dim = [0, 0]  # dimensions
 #bounds_cross_tray = [(-10,10), (-10,10)]  # input bounds [(x1_min,x1_max),(x2_min,x2_max)...]
 #PSO(cross_tray, dim, bounds_cross_tray, num_particles=100, maxiter=200)
 
-bounds_auckley = [(-32,32), (-32,32)]
-PSO(auckley, dim, bounds_auckley, num_particles=100, maxiter=200)
+#bounds_auckley = [(-32,32), (-32,32)]
+#PSO(auckley, dim, bounds_auckley, num_particles=100, maxiter=2000)
 
 #bounds_drop = [(-6,6), (-6,6)]
 #PSO(drop_wave, dim, bounds_drop, num_particles=100, maxiter=200)
 
-#bounds_griewank = [(-60,60), (-60,60)]
-#PSO(griewank, dim, bounds_griewank, num_particles=1000, maxiter=200)
+bounds_griewank = [(-60,60), (-60,60)]
+PSO(griewank, dim, bounds_griewank, num_particles=1000, maxiter=200)
 
 #bounds_rastrigin = [(-6,6), (-6,6)]
 #PSO(rastrigin, dim, bounds_rastrigin, num_particles=100, maxiter=200)
